@@ -53,6 +53,7 @@ export function Navbar() {
           className={`absolute left-1/2 flex -translate-x-1/2 items-center gap-10 text-sm font-semibold text-slate-600`}
         >
           {navLinks.map((link) => {
+            // For Services link on home page - scroll to section
             if (link.path === '/services' && pathname === '/') {
               const isActive = activeHash === '#services';
               return (
@@ -86,9 +87,9 @@ export function Navbar() {
                 </a>
               );
             }
-            // For Home link, check if hash is empty or not #services
+            // For Home link on home page
             if (link.path === '/' && pathname === '/') {
-              const isActive = !activeHash || activeHash === '';
+              const isActive = !activeHash || (activeHash !== '#services' && activeHash !== '#contact' && activeHash !== '#about');
               return (
                 <a
                   key={link.path}
@@ -106,6 +107,7 @@ export function Navbar() {
                 </a>
               );
             }
+            // For all other links, use Link component to navigate to separate pages
             return (
               <Link
                 key={link.path}
