@@ -96,15 +96,15 @@ export default function LoginForm() {
       <div className="relative z-10 w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <span className="text-2xl font-semibold text-slate-900">NUPAL</span>
-          <Link
+          {/* <Link
             href="/"
             className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/80 backdrop-blur ring-1 ring-slate-200 text-slate-700 hover:text-blue-700 hover:bg-white transition"
             aria-label="Back to home"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          > */}
+            {/* <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </Link>
+            </svg> */}
+          {/* </Link> */}
         </div>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
