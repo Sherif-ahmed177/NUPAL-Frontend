@@ -7,7 +7,7 @@ import FeaturesSection from '@/components/ui/FeaturesSection';
  */
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white">
       <AboutIntroSection />
       <FeaturesSection />
     </div>
