@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         <Navbar />
         <main className="flex-1">{children}</main>
