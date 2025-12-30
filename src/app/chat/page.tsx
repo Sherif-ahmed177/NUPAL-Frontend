@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import ChatSidebar from '@/components/chat/ChatSidebar';
 import ChatInterface from '@/components/chat/ChatInterface';
+import { sendMessage } from '@/services/chatService';
 
 interface Message {
   id: string;
@@ -28,28 +29,6 @@ export default function ChatPage() {
   const activeChat = chats.find((chat) => chat.id === activeChatId);
   const messages = activeChat?.messages || [];
 
-  // Generate a simple bot response (frontend only - replace with API call later)
-  const generateBotResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-
-    if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-      return 'Hello! I\'m here to help you with your academic journey. How can I assist you today?';
-    }
-    if (lowerMessage.includes('course') || lowerMessage.includes('class')) {
-      return 'I can help you with course selection and planning. What specific courses are you interested in?';
-    }
-    if (lowerMessage.includes('gpa') || lowerMessage.includes('grade')) {
-      return 'I can help you understand GPA requirements and track your academic progress. What would you like to know?';
-    }
-    if (lowerMessage.includes('semester') || lowerMessage.includes('schedule')) {
-      return 'I can assist you with semester planning and scheduling. Tell me more about what you need help with.';
-    }
-    if (lowerMessage.includes('advisor')) {
-      return 'I can help you connect with academic advisors. Would you like to schedule a meeting or get advisor contact information?';
-    }
-
-    return 'Thank you for your message! I\'m here to help with your academic planning. Could you provide more details about what you need assistance with?';
-  };
 
   // Generate chat title from first message
   const generateChatTitle = (message: string): string => {
@@ -125,11 +104,54 @@ export default function ChatPage() {
 
       setIsLoading(true);
 
-      // Simulate API call delay
-      setTimeout(() => {
-        const botResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          text: generateBotResponse(messageText),
+      try {
+        // Prepare API request
+        // If the ID starts with 'chat-', it's a local temporary ID, so don't send it as conversation_id
+        const apiConversationId = currentChatId.startsWith('chat-') ? undefined : currentChatId;
+
+        const response = await sendMessage({
+          conversation_id: apiConversationId,
+          message: messageText,
+        });
+
+        const newConversationId = response.conversation_id;
+
+        // Map replies to Message objects
+        const botMessages: Message[] = response.replies.map((reply, index) => ({
+          id: `${newConversationId}-${Date.now()}-${index}`,
+          text: reply.content,
+          isUser: false,
+          timestamp: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+        }));
+
+        setChats((prevChats) =>
+          prevChats.map((chat) => {
+            if (chat.id === currentChatId) {
+              return {
+                ...chat,
+                id: newConversationId, // Update to the real conversation ID from backend
+                messages: [...chat.messages, ...botMessages],
+                lastMessage: botMessages[botMessages.length - 1]?.text || chat.lastMessage,
+                timestamp: 'Just now',
+              };
+            }
+            return chat;
+          })
+        );
+
+        // Also update activeChatId if it was the one we just updated
+        if (activeChatId === currentChatId) {
+          setActiveChatId(newConversationId);
+        }
+      } catch (error: any) {
+        console.error('Failed to get bot response:', error);
+        // Add an error message to the chat
+        const errorMessage: Message = {
+          id: `error-${Date.now()}`,
+          text: error.message || 'Sorry, I encountered an error. Please try again later.',
           isUser: false,
           timestamp: new Date().toLocaleTimeString([], {
             hour: '2-digit',
@@ -142,16 +164,14 @@ export default function ChatPage() {
             chat.id === currentChatId
               ? {
                 ...chat,
-                messages: [...chat.messages, botResponse],
-                lastMessage: botResponse.text,
-                timestamp: 'Just now',
+                messages: [...chat.messages, errorMessage],
               }
               : chat
           )
         );
-
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     },
     [activeChatId]
   );
