@@ -1,6 +1,7 @@
 import { getToken } from '../lib/auth';
 
-const API_BASE_URL = 'http://localhost:5009/api';
+import { API_ENDPOINTS } from '../config/api';
+
 
 export interface ChatSendRequest {
   conversation_id?: string;
@@ -29,7 +30,8 @@ export async function sendMessage(request: ChatSendRequest): Promise<ChatSendRes
       throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_BASE_URL}/chat/send`, {
+    const response = await fetch(`${API_ENDPOINTS.CHAT}/send`, {
+
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

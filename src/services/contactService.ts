@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5009';
+import { API_ENDPOINTS } from '../config/api';
+
 
 export interface ContactMessage {
     studentName: string;
@@ -7,7 +8,8 @@ export interface ContactMessage {
 }
 
 export const submitContactMessage = async (data: ContactMessage) => {
-    const response = await fetch(`${API_URL}/api/contact`, {
+    const response = await fetch(`${API_ENDPOINTS.CONTACT}`, {
+
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

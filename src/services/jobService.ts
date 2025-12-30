@@ -19,7 +19,8 @@ export interface JobSearchParams {
     where?: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5009/api';
+import { API_ENDPOINTS } from '../config/api';
+
 
 export const fetchJobs = async (params?: JobSearchParams): Promise<Job[]> => {
     // Build query string from parameters
@@ -28,7 +29,8 @@ export const fetchJobs = async (params?: JobSearchParams): Promise<Job[]> => {
     if (params?.where) queryParams.append('where', params.where);
 
     const queryString = queryParams.toString();
-    const url = `${API_URL}/jobs${queryString ? `?${queryString}` : ''}`;
+    const url = `${API_ENDPOINTS.JOBS}${queryString ? `?${queryString}` : ''}`;
+
 
     const response = await fetch(url);
 

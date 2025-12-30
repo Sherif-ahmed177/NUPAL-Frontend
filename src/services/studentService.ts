@@ -1,6 +1,7 @@
 import { getToken } from '../lib/auth';
 
-const API_BASE_URL = 'http://localhost:5009/api';
+import { API_ENDPOINTS } from '../config/api';
+
 
 export interface StudentResponse {
     account: {
@@ -35,7 +36,8 @@ export async function getStudentByEmail(email: string): Promise<StudentResponse 
             throw new Error('No authentication token found');
         }
 
-        const response = await fetch(`${API_BASE_URL}/students/by-email/${encodeURIComponent(email)}`, {
+        const response = await fetch(`${API_ENDPOINTS.STUDENTS}/by-email/${encodeURIComponent(email)}`, {
+
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,

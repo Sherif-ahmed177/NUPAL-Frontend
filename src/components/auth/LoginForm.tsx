@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { API_ENDPOINTS } from '@/config/api';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -25,7 +26,8 @@ export default function LoginForm() {
     setIsSubmitting(true);
     setErr('');
     try {
-      const res = await fetch('http://localhost:5009/api/students/login', {
+      const res = await fetch(`${API_ENDPOINTS.STUDENTS}/login`, {
+
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
