@@ -6,7 +6,7 @@ export interface Course {
     credits: number;
     status: CourseStatus;
     category: string;
-    semester?: number; // For semester view
+    semester?: number;
     grade?: string;
     gpa?: number | null;
 }

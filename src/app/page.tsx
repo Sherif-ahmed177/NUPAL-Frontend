@@ -3,14 +3,10 @@
 import { useEffect } from 'react';
 import Hero from '@/components/home/Hero';
 import ServicesSection from '@/components/home/ServicesSection';
-import FeaturesSection from '@/components/ui/FeaturesSection';
+import FeaturesSection from '@/components/home/FeaturesSection';
 import AboutIntroSection from '@/components/home/AboutIntroSection';
 import ContactSection from '@/components/home/ContactSection';
 
-/**
- * Home Page Component
- * Displays hero section with background image and services section with interactive tabs and accordion
- */
 export default function Home() {
   useEffect(() => {
     const handleHashChange = () => {
@@ -36,13 +32,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-white">
-      {/* Hero Section */}
       <Hero />
-
       <ServicesSection />
-
       <FeaturesSection />
-
       <AboutIntroSection />
       <ContactSection />
     </div>
