@@ -1,6 +1,8 @@
 'use client';
+
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { services } from '@/data/services';
 
 export default function ServicesSection() {
@@ -26,8 +28,8 @@ export default function ServicesSection() {
                 key={service.id}
                 onClick={() => handleServiceChange(service.id)}
                 className={`rounded-full px-6 py-2.5 text-sm font-semibold uppercase transition-all duration-200 ${activeService === service.id
-                    ? 'bg-blue-400 text-white shadow-md shadow-blue-500/30'
-                    : 'bg-blue-50 text-blue-400 hover:bg-blue-100'
+                  ? 'bg-blue-400 text-white shadow-md shadow-blue-500/30'
+                  : 'bg-blue-50 text-blue-400 hover:bg-blue-100'
                   }`}
               >
                 {service.title}
@@ -60,7 +62,7 @@ export default function ServicesSection() {
                   <div className={`overflow-hidden transition-all duration-500 ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
                     <div className="pb-6 pl-5">
                       <p className="mb-4 text-base leading-relaxed text-slate-600">{service.description}</p>
-                      <a href="#" className="text-sm font-semibold text-indigo-600 underline hover:text-blue-500">Take a guided tour</a>
+                      <Link href="/login" className="text-sm font-semibold text-indigo-600 underline hover:text-blue-500">Take a guided tour</Link>
                     </div>
                   </div>
                 </div>
@@ -98,4 +100,3 @@ export default function ServicesSection() {
     </section>
   );
 }
-

@@ -4,8 +4,12 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+
 import { getToken, parseJwt, removeToken } from "@/lib/auth";
 import { User, Settings, LogOut } from "lucide-react";
+import Button from "@/components/ui/Button";
+
+import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 
 interface NavLinkItem {
   name: string;
@@ -34,6 +38,7 @@ export function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname() || '';
   const router = useRouter();
+  const { scrollToId } = useSmoothScroll(100);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -109,20 +114,7 @@ export function Navbar() {
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string, id?: string) => {
     if (pathname === '/' && id) {
       e.preventDefault();
-      const element = document.getElementById(id);
-      if (element) {
-        const offset = 100;
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-
-        // Update URL hash without jumping
-        window.history.pushState(null, '', `/#${id}`);
-      }
+      scrollToId(id);
     }
   };
 
@@ -133,7 +125,7 @@ export function Navbar() {
         : "border-slate-100 bg-white/20 text-slate-900 shadow-sm"
         }`}
     >
-      <div className="relative flex w-full items-center justify-between px-20 py-3">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
           <Link href="/">
             <Image src="/logo.svg" alt="NUPAL" width={130} height={34} priority />
@@ -152,6 +144,7 @@ export function Navbar() {
               <Link
                 key={link.path}
                 href={link.path}
+                scroll={false}
                 onClick={(e) => {
                   const id = link.id;
                   if (id) {
@@ -166,7 +159,7 @@ export function Navbar() {
           })}
         </nav>
 
-        {(pathname.startsWith('/dashboard') || pathname === '/chat' || pathname === '/career-hub') ? (
+        {(pathname.startsWith('/dashboard') || pathname === '/chat' || pathname === '/career-hub' || pathname === '/404') ? (
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen((v) => !v)}
@@ -175,17 +168,20 @@ export function Navbar() {
             >
               <span className="text-sm font-semibold">{initial}</span>
             </button>
+
             {menuOpen && (
               <div role="menu" aria-label="Profile menu" className="absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white/95 p-2 shadow-xl backdrop-blur-sm">
                 <div className="flex items-center gap-3 rounded-lg bg-slate-50/70 px-3 py-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700">
                     <span className="text-sm font-semibold">{initial}</span>
                   </div>
+
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold text-slate-900">{userName ?? 'NU Pal User'}</div>
                     <div className="truncate text-xs text-slate-500">Account</div>
                   </div>
                 </div>
+
                 <div className="my-2 h-px bg-slate-200" />
                 <Link
                   href="/dashboard"
@@ -196,6 +192,7 @@ export function Navbar() {
                   <User size={16} aria-hidden="true" />
                   <span>Profile</span>
                 </Link>
+
                 <button
                   className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-slate-700 transition-all duration-200 hover:bg-slate-50"
                   onClick={() => setMenuOpen(false)}
@@ -204,7 +201,9 @@ export function Navbar() {
                   <Settings size={16} aria-hidden="true" />
                   <span>Settings</span>
                 </button>
+
                 <div className="my-2 h-px bg-slate-200" />
+
                 <button
                   className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-red-600 transition-all duration-200 hover:bg-red-50"
                   onClick={() => {
@@ -220,12 +219,13 @@ export function Navbar() {
             )}
           </div>
         ) : (
-          <Link
+          <Button
             href="/login"
-            className="rounded-lg bg-blue-400 px-6 py-2 text-sm font-semibold uppercase text-white transition-colors duration-200 hover:bg-blue-500"
+            size="md"
+            className="px-6"
           >
             LOGIN
-          </Link>
+          </Button>
         )}
       </div>
     </header>

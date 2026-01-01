@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5009';
+import { API_ENDPOINTS } from '../config/api';
+
 
 export interface Skill {
     name: string;
@@ -23,7 +24,8 @@ export async function fetchDynamicSkillsProfile(): Promise<DynamicSkillsProfile 
         }
 
         console.log('Fetching dynamic skills profile from API...');
-        const response = await fetch(`${API_URL}/api/dynamicskills/profile`, {
+        const response = await fetch(`${API_ENDPOINTS.SKILLS}/profile`, {
+
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',

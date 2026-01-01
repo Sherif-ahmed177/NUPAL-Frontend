@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { API_ENDPOINTS } from "@/config/api";
 
 export default function ImportPage() {
   const [out, setOut] = useState<string>("");
@@ -50,7 +51,8 @@ export default function ImportPage() {
             }
           };
         }
-        const res = await fetch('http://localhost:5009/api/students/import', {
+        const res = await fetch(`${API_ENDPOINTS.STUDENTS}/import`, {
+
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
