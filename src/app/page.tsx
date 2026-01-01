@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+
 import Hero from '@/components/home/Hero';
 import ServicesSection from '@/components/home/ServicesSection';
 import FeaturesSection from '@/components/home/FeaturesSection';

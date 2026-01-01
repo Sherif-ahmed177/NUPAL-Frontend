@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+
 import { getToken, parseJwt, removeToken } from "@/lib/auth";
 import { User, Settings, LogOut } from "lucide-react";
 
@@ -175,17 +176,20 @@ export function Navbar() {
             >
               <span className="text-sm font-semibold">{initial}</span>
             </button>
+
             {menuOpen && (
               <div role="menu" aria-label="Profile menu" className="absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white/95 p-2 shadow-xl backdrop-blur-sm">
                 <div className="flex items-center gap-3 rounded-lg bg-slate-50/70 px-3 py-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-700">
                     <span className="text-sm font-semibold">{initial}</span>
                   </div>
+
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold text-slate-900">{userName ?? 'NU Pal User'}</div>
                     <div className="truncate text-xs text-slate-500">Account</div>
                   </div>
                 </div>
+
                 <div className="my-2 h-px bg-slate-200" />
                 <Link
                   href="/dashboard"
@@ -196,6 +200,7 @@ export function Navbar() {
                   <User size={16} aria-hidden="true" />
                   <span>Profile</span>
                 </Link>
+
                 <button
                   className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-slate-700 transition-all duration-200 hover:bg-slate-50"
                   onClick={() => setMenuOpen(false)}
@@ -204,7 +209,9 @@ export function Navbar() {
                   <Settings size={16} aria-hidden="true" />
                   <span>Settings</span>
                 </button>
+
                 <div className="my-2 h-px bg-slate-200" />
+
                 <button
                   className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-red-600 transition-all duration-200 hover:bg-red-50"
                   onClick={() => {

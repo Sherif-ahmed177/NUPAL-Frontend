@@ -27,9 +27,9 @@ export default function ServicesSection() {
                 key={service.id}
                 onClick={() => handleServiceChange(service.id)}
                 className={`rounded-full px-6 py-2.5 text-sm font-semibold uppercase transition-all duration-200 ${activeService === service.id
-                    ? 'bg-blue-400 text-white shadow-md shadow-blue-500/30'
-                    : 'bg-blue-50 text-blue-400 hover:bg-blue-100'
-                }`}
+                  ? 'bg-blue-400 text-white shadow-md shadow-blue-500/30'
+                  : 'bg-blue-50 text-blue-400 hover:bg-blue-100'
+                  }`}
               >
                 {service.title}
               </button>
@@ -51,7 +51,7 @@ export default function ServicesSection() {
                   >
                     <div className="flex items-center gap-4">
                       <div className={`h-1 w-1 rounded-full transition-all duration-300 ${isOpen ? 'h-12 w-1 bg-blue-400' : 'bg-blue-300'
-                      }`} />
+                        }`} />
                       <h3 className="text-xl font-bold text-slate-900">{service.title}</h3>
                     </div>
                     <svg className={`h-5 w-5 text-slate-600 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
