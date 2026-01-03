@@ -59,3 +59,71 @@ export async function sendMessage(request: ChatSendRequest): Promise<ChatSendRes
     clearTimeout(timeoutId);
   }
 }
+
+export async function getConversations() {
+  const token = getToken();
+  if (!token) return [];
+
+  const response = await fetch(`${API_ENDPOINTS.CHAT}/conversations`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) return [];
+  return await response.json();
+}
+
+export async function getMessages(conversationId: string) {
+  const token = getToken();
+  if (!token) return [];
+
+  const response = await fetch(`${API_ENDPOINTS.CHAT}/conversations/${conversationId}/messages`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) return [];
+  return await response.json();
+}
+
+export async function deleteConversation(conversationId: string) {
+  const token = getToken();
+  if (!token) return;
+
+  await fetch(`${API_ENDPOINTS.CHAT}/conversations/${conversationId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+}
+
+export async function togglePinConversation(conversationId: string, isPinned: boolean) {
+  const token = getToken();
+  if (!token) return;
+
+  await fetch(`${API_ENDPOINTS.CHAT}/conversations/${conversationId}/pin`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(isPinned)
+  });
+}
+
+export async function renameConversation(conversationId: string, newTitle: string) {
+  const token = getToken();
+  if (!token) return;
+
+  await fetch(`${API_ENDPOINTS.CHAT}/conversations/${conversationId}/title`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(newTitle)
+  });
+}

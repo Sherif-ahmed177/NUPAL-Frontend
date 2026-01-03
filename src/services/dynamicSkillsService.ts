@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from '../config/api';
+import { getToken } from '../lib/auth';
 
 
 export interface Skill {
@@ -14,7 +15,7 @@ export interface DynamicSkillsProfile {
 
 export async function fetchDynamicSkillsProfile(): Promise<DynamicSkillsProfile | null> {
     try {
-        const token = localStorage.getItem('token');
+        const token = getToken();
 
         console.log('Token found:', token ? 'Yes' : 'No');
 

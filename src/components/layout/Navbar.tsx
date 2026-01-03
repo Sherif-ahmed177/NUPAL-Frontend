@@ -38,7 +38,7 @@ export function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname() || '';
   const router = useRouter();
-  const { scrollToId } = useSmoothScroll(100);
+  const { scrollToId } = useSmoothScroll(70);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -161,13 +161,15 @@ export function Navbar() {
 
         {(pathname.startsWith('/dashboard') || pathname === '/chat' || pathname === '/career-hub' || pathname === '/404') ? (
           <div className="relative" ref={menuRef}>
-            <button
+            <Button
+              variant="none"
+              size="none"
               onClick={() => setMenuOpen((v) => !v)}
-              aria-label="Open profile menu"
+              ariaLabel="Open profile menu"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:shadow"
             >
               <span className="text-sm font-semibold">{initial}</span>
-            </button>
+            </Button>
 
             {menuOpen && (
               <div role="menu" aria-label="Profile menu" className="absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white/95 p-2 shadow-xl backdrop-blur-sm">
@@ -183,29 +185,35 @@ export function Navbar() {
                 </div>
 
                 <div className="my-2 h-px bg-slate-200" />
-                <Link
+                <Button
                   href="/dashboard"
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 transition-all duration-200 hover:bg-slate-50"
+                  variant="none"
+                  size="none"
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-slate-700 transition-all duration-200 hover:bg-slate-50 justify-start"
                   onClick={() => setMenuOpen(false)}
                   role="menuitem"
                 >
                   <User size={16} aria-hidden="true" />
                   <span>Profile</span>
-                </Link>
+                </Button>
 
-                <button
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-slate-700 transition-all duration-200 hover:bg-slate-50"
+                <Button
+                  variant="none"
+                  size="none"
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-slate-700 transition-all duration-200 hover:bg-slate-50 justify-start"
                   onClick={() => setMenuOpen(false)}
                   role="menuitem"
                 >
                   <Settings size={16} aria-hidden="true" />
                   <span>Settings</span>
-                </button>
+                </Button>
 
                 <div className="my-2 h-px bg-slate-200" />
 
-                <button
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-red-600 transition-all duration-200 hover:bg-red-50"
+                <Button
+                  variant="none"
+                  size="none"
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-red-600 transition-all duration-200 hover:bg-red-50 justify-start"
                   onClick={() => {
                     removeToken();
                     window.location.href = '/';
@@ -214,7 +222,7 @@ export function Navbar() {
                 >
                   <LogOut size={16} aria-hidden="true" />
                   <span>Logout</span>
-                </button>
+                </Button>
               </div>
             )}
           </div>

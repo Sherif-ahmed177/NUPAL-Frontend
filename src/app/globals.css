@@ -70,3 +70,16 @@
 .scrollbar-gutter-stable {
   scrollbar-gutter: stable;
 }
+
+/* React Flow Animations */
+.react-flow__node {
+  transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.react-flow__edge-path,
+.react-flow__edge-interaction {
+  transition: d 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    stroke 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    stroke-width 600ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}

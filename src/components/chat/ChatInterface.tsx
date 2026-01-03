@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import ChatMessage from './ChatMessage';
+import Button from '../ui/Button';
 
 interface Message {
   id: string;
@@ -14,14 +15,20 @@ interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (message: string) => void;
   isLoading?: boolean;
+  chatId: string | null;
+  draftMessage?: string;
+  onInputChange?: (value: string) => void;
 }
 
 export default function ChatInterface({
   messages,
   onSendMessage,
   isLoading = false,
+  chatId,
+  draftMessage = '',
+  onInputChange,
 }: ChatInterfaceProps) {
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState(draftMessage);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -33,11 +40,20 @@ export default function ChatInterface({
     scrollToBottom();
   }, [messages]);
 
+  // Sync Input when chat (and draft) changes
+  useEffect(() => {
+    setInputMessage(draftMessage || '');
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+    }
+  }, [chatId, draftMessage]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputMessage.trim() && !isLoading) {
       onSendMessage(inputMessage.trim());
       setInputMessage('');
+      if (onInputChange) onInputChange('');
       // Reset textarea height
       if (inputRef.current) {
         inputRef.current.style.height = 'auto';
@@ -55,7 +71,10 @@ export default function ChatInterface({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputMessage(e.target.value);
+    const newValue = e.target.value;
+    setInputMessage(newValue);
+    if (onInputChange) onInputChange(newValue);
+
     // Auto-resize textarea
     e.target.style.height = 'auto';
     e.target.style.height = `${e.target.scrollHeight}px`;
@@ -85,9 +104,11 @@ export default function ChatInterface({
               style={{ maxHeight: '150px' }}
               required
             />
-            <button
+            <Button
               id={isCentered ? "sendButtonCentered" : "sendButton"}
               type="submit"
+              variant="none"
+              size="none"
               disabled={!inputMessage.trim() || isLoading}
               className={`group absolute right-3 flex h-10 w-10 items-center justify-center rounded-lg bg-transparent transition-all duration-300 hover:bg-blue-50 disabled:opacity-50 ${!inputMessage.trim() || isLoading ? 'pointer-events-none' : 'cursor-pointer'
                 }`}
@@ -110,18 +131,33 @@ export default function ChatInterface({
                   className={`transition-all duration-300 ${inputMessage.trim() && !isLoading ? 'group-hover:stroke-blue-500 group-hover:fill-blue-500' : ''}`}
                 />
               </svg>
-            </button>
+            </Button>
           </div>
         </div>
       </div>
     </form>
   );
 
+  const renderSkeleton = () => (
+    <div className="w-full">
+      <div className="mx-auto max-w-3xl px-6 py-8">
+        <h3 className="mb-6 text-[10px] font-bold uppercase tracking-[0.15em] text-blue-900/40">
+          Loading conversation
+        </h3>
+        <div className="animate-pulse space-y-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="h-8 w-full bg-slate-100 rounded-lg"></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex h-full flex-1 flex-col bg-white overflow-hidden">
       {/* Messages Area */}
-      <div className={`flex-1 overflow-y-auto px-6 ${messages.length === 0 ? 'flex items-center justify-center pb-20' : 'py-6'}`}>
-        {messages.length === 0 ? (
+      <div className={`flex-1 overflow-y-auto px-6 ${!chatId ? 'flex items-center justify-center pb-20' : 'py-6'}`}>
+        {!chatId ? (
           <div className="w-full max-w-2xl px-4 text-center">
             {/* Centered Initial View */}
             <div className="mb-4">
@@ -131,6 +167,8 @@ export default function ChatInterface({
             </div>
             {renderInputForm(true)}
           </div>
+        ) : messages.length === 0 ? (
+          renderSkeleton()
         ) : (
           <div className="mx-auto max-w-3xl">
             {messages.map((message) => (
@@ -156,8 +194,8 @@ export default function ChatInterface({
         )}
       </div>
 
-      {/* Persistent Bottom Input Area (Only visible when there are messages) */}
-      {messages.length > 0 && (
+      {/* Persistent Bottom Input Area (Only visible when a chat is selected) */}
+      {chatId && (
         <div className="border-t border-slate-200 bg-white px-6 py-4">
           {renderInputForm(false)}
         </div>
