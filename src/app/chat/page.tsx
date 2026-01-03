@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import ChatSidebar from '@/components/chat/ChatSidebar';
 import ChatInterface from '@/components/chat/ChatInterface';
-import { sendMessage } from '@/services/chatService';
+import { sendMessage, getConversations, getMessages, deleteConversation, togglePinConversation, renameConversation } from '@/services/chatService';
+import Button from '@/components/ui/Button';
 
 interface Message {
   id: string;
@@ -24,8 +25,10 @@ interface Chat {
 export default function ChatPage() {
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingChatId, setLoadingChatId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isChatsLoading, setIsChatsLoading] = useState(true);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
 
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((prev) => !prev);
@@ -56,44 +59,51 @@ export default function ChatPage() {
   };
 
   const handleNewChat = useCallback(() => {
-    // Check if there's already an empty chat
-    const emptyChat = chats.find((chat) => chat.messages.length === 0);
+    setActiveChatId(null);
+  }, []);
 
-    if (emptyChat) {
-      // If an empty chat exists, just switch to it
-      setActiveChatId(emptyChat.id);
-      return;
-    }
-
-    const newChatId = `chat-${Date.now()}`;
-    const newChat: Chat = {
-      id: newChatId,
-      title: 'New Chat',
-      lastMessage: 'Start a conversation...',
-      timestamp: 'Just now',
-      isPinned: false,
-      messages: [],
-    };
-
-    setChats((prevChats) => [newChat, ...prevChats]);
-    setActiveChatId(newChatId);
-  }, [chats]);
-
-  const handleRenameChat = useCallback((chatId: string, newTitle: string) => {
+  const handleRenameChat = useCallback(async (chatId: string, newTitle: string) => {
+    // Optimistic update
+    const previousChats = chats;
     setChats((prevChats) =>
       prevChats.map((chat) =>
         chat.id === chatId ? { ...chat, title: newTitle } : chat
       )
     );
-  }, []);
 
-  const handlePinChat = useCallback((chatId: string) => {
+    try {
+      if (!chatId.startsWith('chat-')) {
+        await renameConversation(chatId, newTitle);
+      }
+    } catch (error) {
+      console.error("Failed to rename chat", error);
+      setChats(previousChats);
+    }
+  }, [chats]);
+
+  const handlePinChat = useCallback(async (chatId: string) => {
+    const chat = chats.find(c => c.id === chatId);
+    if (!chat) return;
+
+    const newPinnedState = !chat.isPinned;
+    const previousChats = chats;
+
+    // Optimistic update
     setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat.id === chatId ? { ...chat, isPinned: !chat.isPinned } : chat
+      prevChats.map((c) =>
+        c.id === chatId ? { ...c, isPinned: newPinnedState } : c
       )
     );
-  }, []);
+
+    try {
+      if (!chatId.startsWith('chat-')) {
+        await togglePinConversation(chatId, newPinnedState);
+      }
+    } catch (error) {
+      console.error("Failed to pin chat", error);
+      setChats(previousChats);
+    }
+  }, [chats]);
 
   const handleSendMessage = useCallback(
     async (messageText: string) => {
@@ -141,7 +151,7 @@ export default function ChatPage() {
         })
       );
 
-      setIsLoading(true);
+      setLoadingChatId(currentChatId);
 
       try {
         // Prepare API request
@@ -185,6 +195,10 @@ export default function ChatPage() {
         if (activeChatId === currentChatId) {
           setActiveChatId(newConversationId);
         }
+
+        // If we were loading this chat, update loading state to follow the ID change
+        setLoadingChatId(prev => (prev === currentChatId ? null : prev));
+
       } catch (error: any) {
         console.error('Failed to get bot response:', error);
         // Add an error message to the chat
@@ -208,39 +222,116 @@ export default function ChatPage() {
               : chat
           )
         );
-      } finally {
-        setIsLoading(false);
+        setLoadingChatId(null);
       }
     },
     [activeChatId]
   );
 
-  const handleSelectChat = useCallback((chatId: string) => {
-    setActiveChatId(chatId);
-  }, []);
+
 
   const handleSearchChange = useCallback((query: string) => {
     // Search is handled in ChatSidebar component
     // This callback can be used for additional search logic if needed
   }, []);
 
-  const handleDeleteChat = useCallback((chatId: string) => {
+  const handleDeleteChat = useCallback(async (chatId: string) => {
+    // Optimistically update UI
+    const previousChats = chats;
     setChats((prevChats) => prevChats.filter((chat) => chat.id !== chatId));
 
-    // If the deleted chat was active, clear the active chat
     if (activeChatId === chatId) {
       setActiveChatId(null);
     }
+
+    try {
+      if (!chatId.startsWith('chat-')) {
+        await deleteConversation(chatId);
+      }
+    } catch (error) {
+      console.error("Failed to delete chat", error);
+      // Revert on failure
+      setChats(previousChats);
+      if (activeChatId === chatId) setActiveChatId(chatId);
+    }
+  }, [activeChatId, chats]);
+
+  // Load conversations on mount
+  useEffect(() => {
+    async function loadChats() {
+      try {
+        const convos = await getConversations();
+        const mappedChats: Chat[] = convos.map((c: any) => ({
+          id: c.id,
+          title: c.title,
+          lastMessage: '', // We don't get last message from this endpoint effectively yet, or user might not notice. 
+          // Ideally backend returns last message snippet, but title is fine for now.
+          timestamp: new Date(c.last_activity_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          messages: [],     // Will be loaded on demand
+          isPinned: c.is_pinned || false
+        }));
+        setChats(mappedChats);
+      } catch (err) {
+        console.error("Failed to load chats", err);
+      } finally {
+        setIsChatsLoading(false);
+      }
+    }
+    loadChats();
+  }, []);
+
+  // Fetch messages when selecting a chat
+  const handleSelectChat = useCallback(async (chatId: string) => {
+    setActiveChatId(chatId);
+
+    // Check if we already have messages for this chat (basic caching)
+    // If messages are empty, try to fetch them. 
+    // Note: This logic assumes if messages is empty array [], it implies not loaded or truly empty. 
+    // A better way is to check if we fetched before. 
+    // For now, let's just fetch if empty.
+    const targetChat = chats.find(c => c.id === chatId);
+    if (!targetChat) return;
+
+    if (targetChat.messages.length === 0 && !chatId.startsWith('chat-')) {
+      setLoadingChatId(chatId);
+      try {
+        const msgs = await getMessages(chatId);
+        const mappedMessages: Message[] = msgs.map((m: any) => ({
+          id: m.id,
+          text: m.content,
+          isUser: m.role === 'user',
+          timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }));
+
+        setChats(prev => prev.map(c => c.id === chatId ? { ...c, messages: mappedMessages, lastMessage: mappedMessages[mappedMessages.length - 1]?.text || "" } : c));
+      } catch (err) {
+        console.error("Failed to load messages", err);
+      } finally {
+        setLoadingChatId(null);
+      }
+    }
+  }, [chats]);
+
+  // Handle input changes for drafts
+  const handleDraftChange = useCallback((value: string) => {
+    // Use current activeChatId or a specialized key for new chat if null
+    const key = activeChatId || '__new_chat__';
+    setDrafts(prev => ({
+      ...prev,
+      [key]: value
+    }));
   }, [activeChatId]);
 
   return (
     <div className="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-white relative">
       {/* Floating Toggle Button (Visible when sidebar is closed) */}
       {!isSidebarOpen && (
-        <button
+        <Button
+          variant="none"
+          size="none"
           onClick={toggleSidebar}
           className="absolute left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-all hover:bg-slate-50 hover:text-slate-900"
-          title="Open sidebar"
+          ariaLabel="Open sidebar"
         >
           <svg
             width="20"
@@ -255,7 +346,7 @@ export default function ChatPage() {
             <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
             <line x1="9" x2="9" y1="3" y2="21" />
           </svg>
-        </button>
+        </Button>
       )}
 
       <div
@@ -272,6 +363,7 @@ export default function ChatPage() {
           onPinChat={handlePinChat}
           onSearchChange={handleSearchChange}
           onToggleSidebar={toggleSidebar}
+          isLoading={isChatsLoading}
         />
       </div>
 
@@ -279,10 +371,12 @@ export default function ChatPage() {
         <ChatInterface
           messages={messages}
           onSendMessage={handleSendMessage}
-          isLoading={isLoading}
+          isLoading={activeChatId !== null && loadingChatId === activeChatId}
+          chatId={activeChatId}
+          draftMessage={drafts[activeChatId || '__new_chat__'] || ''}
+          onInputChange={handleDraftChange}
         />
       </div>
     </div>
   );
 }
-
