@@ -51,7 +51,7 @@ export default function ContactSection() {
       <div className="mx-auto max-w-4xl px-6 relative z-10">
         <div className="rounded-2xl bg-white p-8 shadow-xl border border-slate-200 sm:p-12">
           <div className="mb-8">
-            <h2 className="text-4xl font-bold text-slate-900 sm:text-5xl">Contact Us</h2>
+            <h2 className="text-4xl font-bold text-slate-900 sm:text-4xl">Contact Us</h2>
             <p className="mt-4 text-lg leading-relaxed text-slate-600">Have questions about your academic journey? Need help with course planning or academic advising? Fill out the form below</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -62,13 +62,13 @@ export default function ContactSection() {
               </div>
               <div>
                 <label htmlFor="studentEmail" className="mb-2 block text-sm font-semibold uppercase tracking-wide text-slate-900">Student Email</label>
-                <input id="studentEmail" name="studentEmail" type="email" value={formData.studentEmail} onChange={handleInputChange} required className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="student@un.edu.eg" />
+                <input id="studentEmail" name="studentEmail" type="email" value={formData.studentEmail} onChange={handleInputChange} required className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="student@nu.edu.eg" />
               </div>
 
             </div>
             <div>
               <label htmlFor="message" className="mb-2 block text-sm font-semibold uppercase tracking-wide text-slate-900">Message</label>
-              <textarea id="message" name="message" rows={6} value={formData.message} onChange={handleInputChange} required className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="Tell us about your question or how we can help you with your academic journey..." />
+              <textarea id="message" name="message" rows={4} value={formData.message} onChange={handleInputChange} required className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none" placeholder="Tell us about your question or how we can help you with your academic journey..." />
             </div>
             <div className="pt-4 space-y-4">
               <Button

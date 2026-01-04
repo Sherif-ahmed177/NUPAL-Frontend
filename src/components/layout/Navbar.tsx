@@ -38,7 +38,7 @@ export function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname() || '';
   const router = useRouter();
-  const { scrollToId } = useSmoothScroll(70);
+  const { scrollToId, scrollToTop } = useSmoothScroll(70);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -127,7 +127,13 @@ export function Navbar() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
-          <Link href="/">
+          <Link
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToTop();
+            }}
+          >
             <Image src="/logo.svg" alt="NUPal" width={100} height={34} priority />
           </Link>
         </div>

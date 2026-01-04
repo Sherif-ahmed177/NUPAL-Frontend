@@ -8,7 +8,7 @@ import { useSmoothScroll } from '@/hooks/useSmoothScroll';
 
 export function Footer() {
   const pathname = usePathname();
-  const { scrollToId } = useSmoothScroll(100);
+  const { scrollToId, scrollToTop } = useSmoothScroll(100);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     if (pathname === '/') {
@@ -30,7 +30,15 @@ export function Footer() {
           {/* Brand Column */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <Image src="/logo.svg" alt="NUPal" width={100} height={34} priority />
+              <Link
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToTop();
+                }}
+              >
+                <Image src="/logo.svg" alt="NUPal" width={100} height={34} priority />
+              </Link>
             </div>
             <p className="text-sm leading-relaxed text-slate-600">
               Empowering students to make informed academic decisions and achieve their educational goals.
