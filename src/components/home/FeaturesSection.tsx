@@ -14,12 +14,18 @@ export default function FeaturesSection() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [hasMoved, setHasMoved] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const checkScroll = useCallback(() => {
     if (!scrollRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
     setCanScrollLeft(scrollLeft > 5);
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+
+    // Calculate progress
+    const totalScrollable = scrollWidth - clientWidth;
+    const progress = totalScrollable > 0 ? (scrollLeft / totalScrollable) * 100 : 0;
+    setScrollProgress(progress);
   }, []);
 
   useEffect(() => {
@@ -75,7 +81,7 @@ export default function FeaturesSection() {
               Discover the powerful tools that help you succeed in your academic journey and career planning.
             </p>
           </div>
-          <div className="flex gap-2 pb-2">
+          <div className="hidden lg:flex gap-2 pb-2">
             <Button
               variant="none"
               size="none"
@@ -123,7 +129,7 @@ export default function FeaturesSection() {
                 e.preventDefault();
               }
             }}
-            className="group relative flex-shrink-0 w-[380px] flex flex-col rounded-2xl bg-white p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)] hover:-translate-y-1 block overflow-hidden"
+            className="group relative flex-shrink-0 w-[280px] sm:w-[380px] flex flex-col rounded-2xl bg-white p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)] hover:-translate-y-1 block overflow-hidden"
           >
             {/* Blue Accent Top Border */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-blue-500 rounded-t-2xl opacity-80 group-hover:opacity-100 transition-opacity" />
@@ -150,6 +156,19 @@ export default function FeaturesSection() {
         ))}
         {/* Extra spacing at the end */}
         <div className="flex-shrink-0 w-8 md:w-24" />
+      </div>
+
+      {/* Mobile Progress Bar Indicator */}
+      <div className="lg:hidden flex justify-center mt-2 px-6">
+        <div className="h-[2px] w-32 bg-slate-200 rounded-full overflow-hidden relative">
+          <div
+            className="absolute top-0 h-full bg-blue-500 transition-all duration-150 rounded-full"
+            style={{
+              width: '35%',
+              left: `${scrollProgress * 0.65}%` // 100 - 35 = 65
+            }}
+          />
+        </div>
       </div>
 
       <style jsx global>{`
